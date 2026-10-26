@@ -40,7 +40,7 @@ PRIVATE_RANGES = tuple(ipaddress.ip_network(x) for x in (
 def allowed_peer(host):
     try:
         addr = ipaddress.ip_address(host)
-        if addr.ipv4_mapped:
+        if isinstance(addr, ipaddress.IPv6Address) and addr.ipv4_mapped:
             addr = addr.ipv4_mapped
         return any(addr in subnet for subnet in PRIVATE_RANGES)
     except ValueError:

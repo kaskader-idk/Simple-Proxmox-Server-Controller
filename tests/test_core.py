@@ -58,7 +58,7 @@ class GuestOperations(unittest.TestCase):
 
 class Security(unittest.TestCase):
     def test_private_network_only(self):
-        for addr in ("127.0.0.1", "192.168.178.5", "10.1.3.2", "100.90.1.1", "::1"):
+        for addr in ("127.0.0.1", "192.168.178.5", "10.1.3.2", "100.90.1.1", "::1", "::ffff:192.168.178.5"):
             self.assertTrue(allowed_peer(addr), addr)
         for addr in ("8.8.8.8", "1.2.3.4", "invalid"):
             self.assertFalse(allowed_peer(addr), addr)
