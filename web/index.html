@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1220">
+  <title>Proxmox Controller</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-icon">◈</span><span>Proxmox<span class="brand-light">Controller</span><small>SERVER MANAGEMENT</small></span></div>
+      <div class="sidebar-caption">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <button class="nav active" data-filter="all"><span class="nav-icon">▦</span> Overview</button>
+        <button class="nav" data-filter="lxc"><span class="nav-icon">⬡</span> Containers <span id="lxcCount" class="count">0</span></button>
+        <button class="nav" data-filter="qemu"><span class="nav-icon">▣</span> Virtual machines <span id="qemuCount" class="count">0</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="node-tile"><span class="online-dot"></span><div><strong id="sideNode">Loading…</strong><small>LOCAL PROXMOX NODE</small></div></div>
+        <p>LAN / Tailscale only<br>Unauthenticated administrator access</p>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div><span class="eyebrow">INFRASTRUCTURE</span><span class="top-separator">/</span><strong id="pageLocation">Overview</strong></div>
+        <div class="top-actions"><span class="live-pill"><span class="online-dot"></span> Live monitoring</span><button id="refresh" class="btn compact">↻ Refresh</button></div>
+      </header>
+
+      <main class="main">
+        <div id="alert" class="alert hidden" role="alert"></div>
+        <section id="overview">
+          <div class="section-intro"><div><div class="eyebrow">NODE DASHBOARD</div><h1 id="welcome">Server overview</h1><p id="subtitle">Real-time performance and workload overview</p></div><span id="lastUpdate" class="muted">Connecting…</span></div>
+          <div class="metric-grid">
+            <article class="metric-card"><div class="metric-head">CPU UTILIZATION <span>◉</span></div><div class="metric-value" id="hostCpu">—</div><div class="meter"><i id="hostCpuBar"></i></div><div class="metric-foot" id="cpuDetail">—</div></article>
+            <article class="metric-card"><div class="metric-head">MEMORY <span>▥</span></div><div class="metric-value" id="hostMem">—</div><div class="meter"><i id="hostMemBar"></i></div><div class="metric-foot" id="memDetail">—</div></article>
+            <article class="metric-card"><div class="metric-head">SWAP <span>▤</span></div><div class="metric-value" id="hostSwap">—</div><div class="meter"><i id="hostSwapBar"></i></div><div class="metric-foot" id="swapDetail">—</div></article>
+            <article class="metric-card"><div class="metric-head">NODE UPTIME <span>◷</span></div><div class="metric-value" id="hostUptime">—</div><div class="metric-foot" id="uptimeDetail">—</div></article>
+          </div>
+
+          <div class="dual">
+            <section class="panel"><div class="panel-head"><div><h2>Processor threads</h2><p>Live load on each logical CPU</p></div><span id="cpuName" class="muted small"></span></div><div id="cpuThreads" class="thread-grid"></div></section>
+            <section class="panel"><div class="panel-head"><div><h2>Hardware & system</h2><p>Node inventory and health</p></div></div><div id="hardware" class="facts"></div></section>
+          </div>
+          <div class="dual">
+            <section class="panel"><div class="panel-head"><div><h2>Storage volumes</h2><p>Mounted physical and logical volumes</p></div></div><div id="disks"></div></section>
+            <section class="panel"><div class="panel-head"><div><h2>Network interfaces</h2><p>Connected host network links</p></div></div><div id="networks"></div></section>
+          </div>
+          <section class="panel"><div class="panel-head"><div><h2>Workloads <span id="workloadCount" class="sub-count">0</span></h2><p>Select a guest for resource usage, files and terminal</p></div><input id="search" class="search" placeholder="Search by name or VMID…" aria-label="Search workloads"></div><div id="guests" class="guest-grid"><p class="muted">Loading workloads…</p></div></section>
+          <section class="panel"><div class="panel-head"><div><h2>Software stack & running services</h2><p>Operating system, Proxmox component versions and active systemd services</p></div></div><div id="software" class="facts"></div></section>
+          <section class="panel"><div class="panel-head"><div><h2>Top memory processes</h2><p>Host-side processes</p></div></div><div id="processes"></div></section>
+        </section>
+
+        <section id="detailView" class="hidden">
+          <button id="back" class="back">← Back to overview</button>
+          <div class="detail-heading"><div><div id="guestType" class="eyebrow">GUEST</div><h1 id="guestName">—</h1><p id="guestSub" class="muted">—</p></div><div class="power-controls"><span id="guestStatus" class="status">—</span><button id="startGuest" class="btn">▶ Start</button><button id="shutdownGuest" class="btn">⏻ Shutdown</button><button id="rebootGuest" class="btn">↻ Reboot</button><button id="stopGuest" class="btn danger">■ Stop</button></div></div>
+          <div class="tabs" role="tablist"><button class="tab active" data-tab="metrics">Metrics & config</button><button class="tab" data-tab="files">File explorer</button><button class="tab" data-tab="terminal">Terminal</button></div>
+
+          <div id="metricsTab" class="tab-view">
+            <div id="guestMetrics" class="metric-grid"></div>
+            <div class="dual">
+              <section class="panel"><div class="panel-head"><div><h2>Guest CPU threads</h2><p>In-guest usage, when available</p></div></div><div id="guestThreads" class="thread-grid"></div></section>
+              <section class="panel"><div class="panel-head"><div><h2>Guest OS & hardware</h2><p>Actual guest measurements</p></div></div><div id="guestFacts" class="facts"></div></section>
+            </div>
+            <section class="panel"><div class="panel-head"><div><h2>Virtual storage</h2><p>Configured disks, mountpoints and capacity</p></div></div><div id="guestDisks"></div></section>
+            <section class="panel"><div class="panel-head"><div><h2>Proxmox configuration</h2><p>Read-only configuration for this guest</p></div></div><div id="guestConfig" class="facts"></div></section>
+          </div>
+
+          <div id="filesTab" class="tab-view hidden">
+            <section class="panel explorer">
+              <div class="panel-head"><div><h2>File explorer</h2><p>Files inside this Linux guest, not the Proxmox host</p></div><button id="fileRefresh" class="btn compact">↻ Refresh</button></div>
+              <div class="file-toolbar"><button id="fileUp" class="btn compact" title="Parent folder">↑ Up</button><input id="filePath" class="path-input" value="/" aria-label="Current guest directory"><button id="fileGo" class="btn compact">Go</button></div>
+              <div class="file-toolbar"><label class="btn primary compact" for="uploadInput">↑ Upload files</label><input id="uploadInput" type="file" multiple hidden><button id="newFolder" class="btn compact">＋ New folder</button><span class="muted small">Drop files here to upload; drag guest files to download</span></div>
+              <div id="dropzone"><div class="file-header"><span>Name</span><span>Size</span><span>Modified</span><span>Actions</span></div><div id="fileList" class="file-list"></div></div>
+              <div id="fileInfo" class="file-footer muted">—</div>
+            </section>
+          </div>
+
+          <div id="terminalTab" class="tab-view hidden">
+            <section class="panel">
+              <div class="panel-head"><div><h2>Interactive console</h2><p>PTY console; VMs require an enabled serial console</p></div><button id="reconnectTerminal" class="btn compact">Reconnect</button></div>
+              <div class="terminal"><div class="terminal-bar"><span class="terminal-led"></span><span id="terminalStatus">Disconnected</span><span class="terminal-hint">Click to type · Ctrl+C supported</span></div><pre id="terminalOutput" tabindex="0"></pre><textarea id="terminalInput" aria-label="Terminal keyboard input" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea></div>
+            </section>
+            <section class="panel"><div class="panel-head"><div><h2>Execute command</h2><p>One-off Linux shell commands via pct exec or QEMU Guest Agent; use this if a VM has no serial console</p></div></div><form id="commandForm" class="command-row"><input id="commandInput" class="path-input" placeholder="e.g. df -h" autocomplete="off" required><button class="btn primary" type="submit">Run</button></form><pre id="commandOutput" class="command-output">Output appears here.</pre></section>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
