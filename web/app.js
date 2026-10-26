@@ -84,6 +84,9 @@ function renderHost(host) {
     fact("CPU", host.cpu_name) + fact("Architecture", host.platform) +
     fact("Kernel", host.kernel) + fact("Processor threads", host.logical_cores) +
     fact("GPUs", (host.gpus || []).join(" | ") || "Not detected") +
+    fact("Motherboard", (host.firmware || {}).motherboard || "Not exposed") +
+    fact("BIOS", ((host.firmware || {}).bios_vendor || "") + " " + ((host.firmware || {}).bios_version || "")) +
+    fact("System model", (host.firmware || {}).system || "Not exposed") +
     fact("Temperatures", temp.join(" | ") || "No sensor data") +
     fact("System load", (host.load_average || []).map(n=>n.toFixed(2)).join(" · ")) +
     fact("Proxmox tools", host.proxmox ? "Available" : "Not installed"));
@@ -102,6 +105,13 @@ function renderHost(host) {
     fmt(n.sent) + ' · ↓ ' + fmt(n.received) + ' · ' +
     (n.speed > 0 ? n.speed + " Mbps" : "speed unavailable") + '</div></div>').join("")
     : '<div class="empty">No network data.</div>');
+  const software = host.software || {};
+  $html("software", fact("Distribution", software.distribution || host.platform) +
+    fact("Proxmox version", software.proxmox_version || "Not detected") +
+    fact("Active services", (software.running_services || []).length) +
+    fact("Running services", (software.running_services || []).join(", ") || "Unavailable") +
+    fact("Proxmox components", (software.components || []).join(" | ") || "Not detected") +
+    fact("USB devices", (host.usb || []).join(" | ") || "Not detected"));
   $html("processes", (host.processes || []).map(p =>
     '<div class="interface"><div class="interface-top"><span class="interface-name">' +
     esc(p.name) + ' <span class="muted">#' + esc(p.pid) + '</span></span><span>' +

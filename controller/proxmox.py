@@ -119,6 +119,61 @@ def _gpus():
             pass
     return result
 
+
+def _read_text(file):
+    try:
+        with open(file, encoding="utf-8", errors="replace") as handle:
+            return handle.read(4096).strip()
+    except OSError:
+        return ""
+
+def _firmware():
+    keys = {
+        "manufacturer": "sys_vendor",
+        "system": "product_name",
+        "board_vendor": "board_vendor",
+        "motherboard": "board_name",
+        "board_version": "board_version",
+        "bios_vendor": "bios_vendor",
+        "bios_version": "bios_version",
+        "bios_date": "bios_date",
+    }
+    return {name: _read_text("/sys/class/dmi/id/" + file)
+            for name, file in keys.items()}
+
+def _software():
+    os_name = ""
+    for line in _read_text("/etc/os-release").splitlines():
+        if line.startswith("PRETTY_NAME="):
+            os_name = line.split("=", 1)[1].strip('"')
+    info = {"distribution": os_name, "proxmox_version": "",
+            "components": [], "running_services": []}
+    if shutil.which("pveversion"):
+        try:
+            lines = run("pveversion", "--verbose", timeout=6).splitlines()
+            info["proxmox_version"] = lines[0] if lines else ""
+            info["components"] = lines[:35]
+        except RuntimeError:
+            pass
+    if shutil.which("systemctl"):
+        try:
+            lines = run("systemctl", "list-units", "--type=service",
+                        "--state=running", "--no-legend", "--no-pager",
+                        timeout=6).splitlines()
+            info["running_services"] = [line.split()[0] for line in lines
+                                        if line.split() and line.split()[0].endswith(".service")][:80]
+        except RuntimeError:
+            pass
+    return info
+
+def _usb():
+    if not shutil.which("lsusb"):
+        return []
+    try:
+        return run("lsusb", timeout=3).splitlines()[:100]
+    except RuntimeError:
+        return []
+
 def node_status():
     per_thread = psutil.cpu_percent(interval=0.15, percpu=True)
     virtual_mem = psutil.virtual_memory()
@@ -167,7 +222,8 @@ def node_status():
                    "available": virtual_mem.available, "percent": virtual_mem.percent},
         "swap": {"total": swap.total, "used": swap.used, "free": swap.free},
         "disks": disks, "temperatures": sensors, "networks": network,
-        "gpus": _gpus(), "uptime": int(time.time() - psutil.boot_time()),
+        "gpus": _gpus(), "usb": _usb(), "firmware": _firmware(),
+        "software": _software(), "uptime": int(time.time() - psutil.boot_time()),
         "load_average": os.getloadavg() if hasattr(os, "getloadavg") else [],
         "processes": top_processes[:12],
         "proxmox": shutil.which("pvesh") is not None

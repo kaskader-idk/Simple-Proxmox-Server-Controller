@@ -22,7 +22,7 @@ For automatic startup instead: `sudo bash install-service.sh` (then `systemctl s
 
 ## Dashboard
 
-- Host CPU name/topology and **per-logical-thread usage**; CPU clock and load.
+- Host CPU name/topology and **per-logical-thread usage**; CPU clock and load; motherboard, firmware/BIOS model, USB inventory, Proxmox component versions and running systemd services.
 - Real-time RAM and swap, mounted storage usage, network interfaces, available temperature sensors, GPU descriptions, uptime, kernel and top memory-consuming processes.
 - LXC and QEMU guest cards with running/stopped state, assigned CPUs, memory and swap usage/reservations, disk allocation/usage and cumulative I/O (as reported by Proxmox).
 - Detailed view: Proxmox guest configuration, reserved CPU threads, memory, swap, virtual disks and guest OS-specific readings including **per-thread CPU samples**, when readable.
