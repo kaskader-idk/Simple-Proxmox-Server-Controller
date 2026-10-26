@@ -25,11 +25,12 @@ ExecStart=/bin/bash $root/start.sh
 Restart=on-failure
 RestartSec=5
 Environment=PVE_CONTROLLER_BIND=0.0.0.0
-Environment=PVE_CONTROLLER_PORT=8787
+Environment=PVE_CONTROLLER_PORT=8788
 
 [Install]
 WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
-systemctl enable --now simple-proxmox-controller.service
+systemctl enable simple-proxmox-controller.service
+systemctl restart simple-proxmox-controller.service
 systemctl --no-pager status simple-proxmox-controller.service

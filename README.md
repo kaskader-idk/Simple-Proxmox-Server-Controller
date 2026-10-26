@@ -4,7 +4,7 @@ A responsive, **no-login** web dashboard for monitoring and managing a **local P
 
 > **SECURITY WARNING — READ BEFORE STARTING**
 >
-> The application runs with **root privileges on the Proxmox host**, has **no login** by design, and provides guest filesystem and shell access. Anyone on an allowed network who can reach port 8787 can administer your guests. **Never port-forward it or put it on a public URL / public Cloudflare Tunnel.** The app rejects direct connections outside RFC1918, loopback, and Tailscale (100.64.0.0/10) networks and checks browser Origin on writes/WebSockets. A reverse proxy may bypass this source-address guard; do not publish it via one. For access outside home, connect through a private VPN/Tailscale with appropriate ACLs.
+> The application runs with **root privileges on the Proxmox host**, has **no login** by design, and provides guest filesystem and shell access. Anyone on an allowed network who can reach port 8788 can administer your guests. **Never port-forward it or put it on a public URL / public Cloudflare Tunnel.** The app rejects direct connections outside RFC1918, loopback, and Tailscale (100.64.0.0/10) networks and checks browser Origin on writes/WebSockets. A reverse proxy may bypass this source-address guard; do not publish it via one. For access outside home, connect through a private VPN/Tailscale with appropriate ACLs.
 
 ## Quick start
 
@@ -16,9 +16,9 @@ cd Simple-Proxmox-Server-Controller
 sudo bash start.sh
 ```
 
-Open **http://PROXMOX-LAN-IP:8787** in a browser. The start script creates a Python virtual environment, installs dependencies on first use and starts the server. It needs Python 3.10+, Proxmox tools, and an internet connection on first start. Keep the terminal open while using it.
+Open **http://PROXMOX-LAN-IP:8788** in a browser. The start script creates a Python virtual environment, installs dependencies on first use and starts the server. It needs Python 3.10+, Proxmox tools, and an internet connection on first start. Keep the terminal open while using it.
 
-For automatic startup instead: `sudo bash install-service.sh` (then `systemctl status simple-proxmox-controller`). To update: `git pull && sudo systemctl restart simple-proxmox-controller`. Adjust the bind address and port with `PVE_CONTROLLER_BIND` / `PVE_CONTROLLER_PORT` environment variables; bind to `127.0.0.1` for local-only access.
+For automatic startup instead: `sudo bash install-service.sh` (then `systemctl status simple-proxmox-controller`). To update: `git pull && sudo systemctl restart simple-proxmox-controller`. **If changing the service port, rerun `sudo bash install-service.sh` after `git pull` to update the systemd configuration and restart the service.** Adjust the bind address and port with `PVE_CONTROLLER_BIND` / `PVE_CONTROLLER_PORT` environment variables; bind to `127.0.0.1` for local-only access.
 
 ## Dashboard
 
@@ -70,7 +70,7 @@ Run unit tests after installation:
 
 ### Troubleshooting
 
-- **Page does not load:** verify the service with `systemctl status simple-proxmox-controller`, use the Proxmox host IP and port 8787, and check the firewall for LAN access.
+- **Page does not load:** verify the service with `systemctl status simple-proxmox-controller`, use the Proxmox host IP and port 8788, and check the firewall for LAN access.
 - **503 / missing pvesh:** run on the actual Proxmox host as root.
 - **VM file browser errors:** enable QEMU Guest Agent, start its service inside the VM, and install Python 3.
 - **VM console shows serial warning:** configure a Proxmox serial port and enable serial console/login inside the VM, or use one-off Command mode.

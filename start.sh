@@ -31,7 +31,7 @@ if [[ "$want" != "$have" ]]; then
   printf '%s\n' "$want" > .venv/.requirements.sha
 fi
 bind="$(printenv PVE_CONTROLLER_BIND || echo 0.0.0.0)"
-port="$(printenv PVE_CONTROLLER_PORT || echo 8787)"
+port="$(printenv PVE_CONTROLLER_PORT || echo 8788)"
 echo
 echo "Simple Proxmox Controller — http://<PROXMOX-LAN-IP>:$port"
 echo "WARNING: No login. Full guest administration. NEVER expose this port publicly."
